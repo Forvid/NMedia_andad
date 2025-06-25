@@ -29,7 +29,6 @@ class PostRemoteMediator(
         return try {
             val response = when (loadType) {
                 LoadType.REFRESH -> {
-                    // если БД пуста — getLatest, иначе getAfter
                     val afterKey = postRemoteKeyDao.maxByType(PostRemoteKeyEntity.KeyType.AFTER)
                     if (afterKey == null) {
                         service.getLatest(state.config.initialLoadSize)
@@ -38,7 +37,6 @@ class PostRemoteMediator(
                     }
                 }
                 LoadType.PREPEND ->
-                    // запретили автоподгрузку сверху
                     return MediatorResult.Success(endOfPaginationReached = true)
                 LoadType.APPEND -> {
                     val beforeKey = postRemoteKeyDao.minByType(PostRemoteKeyEntity.KeyType.BEFORE)
@@ -55,7 +53,6 @@ class PostRemoteMediator(
             db.withTransaction {
                 when (loadType) {
                     LoadType.REFRESH -> {
-                        // при REFRESH не чистим БД, а добавляем сверху
                         val firstId = body.firstOrNull()?.id ?: return@withTransaction
                         postRemoteKeyDao.insert(
                             PostRemoteKeyEntity(

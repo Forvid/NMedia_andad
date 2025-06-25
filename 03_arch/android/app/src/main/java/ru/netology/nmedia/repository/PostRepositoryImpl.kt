@@ -51,9 +51,7 @@ class PostRepositoryImpl @Inject constructor(
     ).flow
         .map { pagingData -> pagingData.map(PostEntity::toDto) }
 
-    // Эти методы при пагинации теперь не используются, но оставим заглушки
     override suspend fun getAll() {
-        // устарело при использовании RemoteMediator
     }
 
     override fun getNewerCount(id: Long): Flow<Int> = emptyFlow()

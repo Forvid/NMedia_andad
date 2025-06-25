@@ -9,39 +9,30 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.databinding.LoadStateBinding
 
 class PagingLoadStateAdapter(
-    private val onInteractionListener: OnInteractionListener,
-) : LoadStateAdapter<PagingLoadStateAdapter.LoadStateViewHolder>() {
+    private val retry: () -> Unit
+) : LoadStateAdapter<PagingLoadStateAdapter.StateViewHolder>() {
 
-    interface OnInteractionListener {
-        fun onRetry() {}
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): LoadStateViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        return LoadStateViewHolder(
-            LoadStateBinding.inflate(layoutInflater, parent, false),
-            onInteractionListener
+    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState) =
+        StateViewHolder(
+            LoadStateBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+            retry
         )
-    }
 
-    override fun onBindViewHolder(holder: LoadStateViewHolder, loadState: LoadState) {
+    override fun onBindViewHolder(holder: StateViewHolder, loadState: LoadState) =
         holder.bind(loadState)
-    }
 
-    class LoadStateViewHolder(
+    class StateViewHolder(
         private val binding: LoadStateBinding,
-        private val onInteractionListener: OnInteractionListener,
+        retry: () -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(loadState: LoadState) {
-            binding.apply {
-                progress.isVisible = loadState is LoadState.Loading
-                retry.isVisible = loadState is LoadState.Error
+        init {
+            binding.retry.setOnClickListener { retry() }
+        }
 
-                retry.setOnClickListener {
-                    onInteractionListener.onRetry()
-                }
-            }
+        fun bind(loadState: LoadState) {
+            binding.progress.isVisible = loadState is LoadState.Loading
+            binding.retry.isVisible = loadState is LoadState.Error
         }
     }
 }
